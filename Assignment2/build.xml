@@ -1,0 +1,35 @@
+<project name="hw02" default="junit" basedir=".">
+    
+    <property environment="env" />
+    <property name="hamcrestpath" value="${env.HAMCREST_CORE}" />
+    <property name="junitpath" value="${env.JUNIT}" />
+
+    <target name="compile">
+        <mkdir dir="bin" />
+        <mkdir dir="test/bin" />
+        <javac srcdir="src" destdir="bin" includeantruntime="true"/>
+        <javac srcdir="test/src" destdir="test/bin" includeantruntime="true">
+            <classpath>
+                <pathelement location="${hamcrestpath}" />
+                <pathelement location="${junitpath}" />
+                <pathelement location="bin" />
+            </classpath>
+        </javac>
+    </target>
+    
+    <target name="junit" depends="compile">
+        <junit fork="true" printsummary="true" haltonfailure="no">
+            <classpath>
+                <pathelement location="${hamcrestpath}" />
+                <pathelement location="${junitpath}" />
+                <pathelement location="test/bin" />
+                <pathelement location="bin" />
+            </classpath>
+            <formatter type="plain" usefile="false" />
+            <batchtest fork="yes">
+                <fileset dir="test/src" includes="**/*Test.java" />
+            </batchtest>
+        </junit>
+    </target>
+
+</project>

@@ -1,0 +1,75 @@
+<project xmlns:jacoco="antlib:org.jacoco.ant" name="hw10" default="coverage" basedir=".">
+    
+    <property environment="env" />
+    <property name="hamcrestpath" value="${env.HAMCREST_CORE}" />
+    <property name="junitpath" value="${env.JUNIT}" />
+    <property name="jacocopath" value="${env.JACOCO}" />
+    
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+        <classpath path="${jacocopath}" />
+    </taskdef>
+
+    <target name="clean">
+        <delete dir="bin"/>
+        <delete dir="test/bin"/>
+        <delete dir="test/reports"/>
+    </target>
+
+    <target name="compile" depends="clean">
+        <mkdir dir="bin" />
+        <mkdir dir="test/bin" />
+        <javac srcdir="src" destdir="bin" includeantruntime="true"/>
+        <javac srcdir="test/src" destdir="test/bin" includeantruntime="true">
+            <classpath>
+                <pathelement location="${hamcrestpath}" />
+                <pathelement location="${junitpath}" />
+                <pathelement location="bin" />
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="junit" depends="compile">
+        <mkdir dir="test/reports/junit" />
+        <mkdir dir="test/reports/coverage" />
+        <jacoco:coverage destfile="test/reports/coverage/coverage.exec">
+            <junit fork="true" printsummary="true" haltonfailure="no">
+                <classpath>
+                    <pathelement location="${hamcrestpath}" />
+                    <pathelement location="${junitpath}" />
+                    <pathelement location="test/bin" />
+                    <pathelement location="bin" />
+                </classpath>
+                <formatter type="plain" usefile="false" />
+                <formatter type="xml" usefile="true" />
+                <batchtest todir="test/reports/junit">
+                    <fileset dir="test/src" includes="**/*Test.java" />
+                </batchtest>
+            </junit>
+        </jacoco:coverage>
+        <junitreport todir="test/reports/junit">
+            <fileset dir="test/reports/junit">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report todir="test/reports/junit"/> 
+        </junitreport>
+    </target>
+    
+
+    <target name="coverage" depends="junit">
+        <jacoco:report>
+            <executiondata>
+                <file file="test/reports/coverage/coverage.exec"/>
+            </executiondata>
+            <structure name="Assignment10">
+                <classfiles>
+                    <fileset dir="bin"/>
+                </classfiles>
+                <sourcefiles encoding="UTF-8">
+                    <fileset dir="src"/>
+                </sourcefiles>
+            </structure>
+            <html destdir="test/reports/coverage"/>
+        </jacoco:report>
+    </target>
+
+</project>
